@@ -9,6 +9,7 @@ import ApiContext from "../ApiContext";
 import config from "../config";
 import AddFolder from "../AddFolder/AddFolder";
 import AddNote from "../AddNote/AddNote";
+import ValidationError from "../ValidationError";
 import "./App.css";
 
 class App extends Component {
@@ -92,14 +93,18 @@ class App extends Component {
     return (
       <ApiContext.Provider value={value}>
         <div className="App">
-          <nav className="App__nav">{this.renderNavRoutes()}</nav>
+          <ValidationError>
+            <nav className="App__nav">{this.renderNavRoutes()}</nav>
+          </ValidationError>
           <header className="App__header">
             <h1>
               <Link to="/">Noteful</Link>{" "}
               <FontAwesomeIcon icon="check-double" />
             </h1>
           </header>
-          <main className="App__main">{this.renderMainRoutes()}</main>
+          <ValidationError>
+            <main className="App__main">{this.renderMainRoutes()}</main>
+          </ValidationError>
         </div>
       </ApiContext.Provider>
     );
