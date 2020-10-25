@@ -9,13 +9,14 @@ import ApiContext from "../ApiContext";
 import config from "../config";
 import AddFolder from "../AddFolder/AddFolder";
 import AddNote from "../AddNote/AddNote";
-import ValidationError from "../ValidationError";
+import ErrorBoundry from "../ErrorBoundry";
 import "./App.css";
 
 class App extends Component {
   state = {
     notes: [],
     folders: [],
+    error: null,
   };
 
   componentDidMount() {
@@ -33,8 +34,11 @@ class App extends Component {
       .then(([notes, folders]) => {
         this.setState({ notes, folders });
       })
-      .catch((error) => {
-        console.error({ error });
+      .catch((err) => {
+        this.setState({
+          error: err.message,
+        });
+        console.log(err);
       });
   }
 
@@ -93,18 +97,18 @@ class App extends Component {
     return (
       <ApiContext.Provider value={value}>
         <div className="App">
-          <ValidationError>
+          <ErrorBoundry>
             <nav className="App__nav">{this.renderNavRoutes()}</nav>
-          </ValidationError>
+          </ErrorBoundry>
           <header className="App__header">
             <h1>
               <Link to="/">Noteful</Link>{" "}
               <FontAwesomeIcon icon="check-double" />
             </h1>
           </header>
-          <ValidationError>
+          <ErrorBoundry>
             <main className="App__main">{this.renderMainRoutes()}</main>
-          </ValidationError>
+          </ErrorBoundry>
         </div>
       </ApiContext.Provider>
     );
