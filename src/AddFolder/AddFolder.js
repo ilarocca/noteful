@@ -5,17 +5,44 @@ import config from "../config";
 import "./AddFolder.css";
 
 export default class AddFolder extends Component {
+  constructor() {
+    super();
+    this.state = {
+      error: null,
+      name: "",
+      nameValid: false,
+      validationMessage: "",
+    };
+  }
   static defaultProps = {
     history: {
       push: () => {},
     },
   };
+
   static contextType = ApiContext;
 
-  handleSubmit = (e) => {
-    e.preventDefault();
+  isNameValid = (event) => {
+    event.preventDefault();
+    if (!this.state.name) {
+      this.setState({
+        validationMessage: "Folder name can not be blank.",
+        nameValid: false,
+      });
+    } else {
+      this.setState(
+        {
+          validationMessage: "",
+          nameValid: true,
+        },
+        this.handleSubmit()
+      );
+    }
+  };
+
+  handleSubmit = () => {
     const folder = {
-      name: e.target["folder-name"].value,
+      name: this.state.name,
     };
     fetch(`${config.API_ENDPOINT}/folders`, {
       method: "POST",
@@ -33,7 +60,9 @@ export default class AddFolder extends Component {
         this.props.history.push(`/folder/${folder.id}`);
       })
       .catch((error) => {
-        console.error({ error });
+        this.setState({
+          error: error.message,
+        });
       });
   };
 
@@ -41,15 +70,30 @@ export default class AddFolder extends Component {
     return (
       <section className="AddFolder">
         <h2>Create a folder</h2>
-        <NotefulForm onSubmit={this.handleSubmit}>
+        <NotefulForm onSubmit={this.isNameValid}>
           <div className="field">
             <label htmlFor="folder-name-input">Name</label>
-            <input type="text" id="folder-name-input" name="folder-name" />
+            <input
+              type="text"
+              id="folder-name-input"
+              name="folder-name"
+              onChange={(event) => this.setState({ name: event.target.value })}
+            />
+            {!this.state.nameValid && (
+              <div>
+                <p>{this.state.validationMessage}</p>
+              </div>
+            )}
           </div>
           <div className="buttons">
             <button type="submit">Add folder</button>
           </div>
         </NotefulForm>
+        {this.state.error && (
+          <div>
+            <p>{this.state.error}</p>
+          </div>
+        )}
       </section>
     );
   }
